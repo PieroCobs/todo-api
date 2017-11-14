@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const _ = require('underscore');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,19 +15,28 @@ app.get('/', function(req, res) {
 
 // route to fetch all todos
 app.get('/todos', function(req, res) {
-	res.json(todos);
+	var queryParams = req.query,
+		 filteredTodos =  todos;
+	
+	if (queryParams.hasOwnProperty('status') && queryParams.status === 'completed') {
+		filteredTodos = _.where(filteredTodos, {status: 'completed'});
+	} else if (queryParams.hasOwnProperty('status') && queryParams.status === 'pending') {
+		filteredTodos = _.where(filteredTodos, {status: 'pending'});
+	}
+
+	if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
+		filteredTodos = _.filter(filteredTodos, function(todo) {
+			return todo.title.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
+		});
+	}
+
+	res.json(filteredTodos);
 });
 
-// route to a single todo id parameter
+// route to a single todo:id parameter
 app.get('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id),
-		 matchedTodo;
-
-	todos.forEach(function(todo) {
-		if (todo.id === todoId) {
-			matchedTodo = todo;
-		}
-	});
+		 matchedTodo = _.findWhere(todos, {id: todoId});
 
 	if (matchedTodo) {
 		res.json(matchedTodo);
