@@ -54,7 +54,7 @@ app.get('/todos/:id', function(req, res) {
 	});
 });
 
-// post new todo item
+// post /todos
 app.post('/todos', function(req, res) {
 	var body = _.pick(req.body, 'description', 'completed');
 
@@ -86,7 +86,7 @@ app.delete('/todos/:id', function(req, res) {
 	});
 });
 
-// PUT /todos?id
+// PUT /todos/:id
 app.put('/todos/:id', function(req, res) {
 	var todoId = parseInt(req.params.id)
 		 body = _.pick(req.body, 'description', 'completed'),
@@ -112,6 +112,18 @@ app.put('/todos/:id', function(req, res) {
 		}
 	}, function() {
 		res.status(500).send();
+	});
+});
+
+// Users
+// post /users
+app.post('/users', function(req, res) {
+	var body = _.pick(req.body, 'email', 'password');
+
+	db.user.create(body).then(function(user) {
+		res.json(user.toJSON());
+	}, function(e) {
+		res.status(400).json(e);
 	});
 });
 
